@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 228fc86588d448b43a7e151bf29be63e, type: 3}
+  m_Name: House5Destruction
+  m_EditorClassIdentifier: 
+  intactSprite: {fileID: 21300000, guid: 3542015237a590347aca0b8f2ca83ad8, type: 3}
+  ruinedSprite: {fileID: 7777519079001104681, guid: 1eb768403ca573d458355988aa8b0224, type: 3}
+  transitionDuration: 0.6
+  shakeDistance: 0.035

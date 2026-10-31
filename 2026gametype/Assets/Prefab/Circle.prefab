@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6031578373316679853}
   - component: {fileID: 6240270636361386654}
   - component: {fileID: -219491171073097155}
+  - component: {fileID: 3363837694140518563}
   m_Layer: 8
   m_Name: Circle
   m_TagString: Item
@@ -29,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.2779082, y: -1.6177745, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -99,8 +100,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flySpeed: 15
-  attractionRadius: 6
-  pickupDistance: 1.2
+  attractionRadius: 4
+  pickupDistance: 0.5
   ghostLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -139,3 +140,24 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!114 &3363837694140518563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3560923308685372868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fd8c49fbf91bd54fbdadb7beb39a810, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  directionSprites:
+  - {fileID: -213270372, guid: df3508d75c69ab046ba1ced94c2f90cd, type: 3}
+  - {fileID: -1669979043, guid: df3508d75c69ab046ba1ced94c2f90cd, type: 3}
+  - {fileID: -867596280, guid: df3508d75c69ab046ba1ced94c2f90cd, type: 3}
+  - {fileID: 170345287, guid: df3508d75c69ab046ba1ced94c2f90cd, type: 3}
+  - {fileID: -292275002, guid: df3508d75c69ab046ba1ced94c2f90cd, type: 3}
+  - {fileID: -1470017084, guid: df3508d75c69ab046ba1ced94c2f90cd, type: 3}
+  - {fileID: 1630371408, guid: df3508d75c69ab046ba1ced94c2f90cd, type: 3}
+  - {fileID: -1648854068, guid: df3508d75c69ab046ba1ced94c2f90cd, type: 3}

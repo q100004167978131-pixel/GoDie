@@ -2,15 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 [RequireComponent(typeof(Animator))]
 public class AutoDoor : MonoBehaviour
 {
     [Header("門的阻擋碰撞體")]
     public Collider2D doorSolidCollider; // 請將門的「實體阻擋 BoxCollider2D」拉入此欄位
 
+    [Header("提示文字內容")]
+    public string interactPrompt = "按 【F】 鍵開啟機關門";
+
     private Animator anim;
-    private int playerInsideCount = 0; // 記錄在感應區內的玩家/幽靈數量
+    private bool isPlayerInRange = false;
+    private bool isOpen = false;
 
     void Awake()
     {
@@ -31,13 +34,30 @@ public class AutoDoor : MonoBehaviour
         }
     }
 
-    // 玩家/幽靈踏入感應區 (Circle Collider 2D - Is Trigger)
+    void Update()
+    {
+        // 只有在玩家處於感應區域內、且門尚未開啟時，按下 F 鍵觸發開門
+        if (isPlayerInRange && !isOpen)
+        {
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                OpenDoor();
+            }
+        }
+    }
+
+    // 玩家/幽靈踏入感應區 (Collider2D - Is Trigger)
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (IsPlayerOrGhost(other))
         {
-            playerInsideCount++;
-            UpdateDoorState();
+            isPlayerInRange = true;
+
+            // 如果門尚未開啟，顯示 UI 提示
+            if (!isOpen && UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowTip(interactPrompt);
+            }
         }
     }
 
@@ -46,8 +66,19 @@ public class AutoDoor : MonoBehaviour
     {
         if (IsPlayerOrGhost(other))
         {
-            playerInsideCount = Mathf.Max(0, playerInsideCount - 1);
-            UpdateDoorState();
+            isPlayerInRange = false;
+
+            // 離開感應區時隱藏提示 UI
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.HideTip();
+            }
+
+            // 離開感應區時，若門是開著的則自動關閉門
+            if (isOpen)
+            {
+                CloseDoor();
+            }
         }
     }
 
@@ -56,23 +87,45 @@ public class AutoDoor : MonoBehaviour
         return other.CompareTag("Player") || other.GetComponent<GhostMode>() != null || other.GetComponent<PlayerMove>() != null;
     }
 
-    void UpdateDoorState()
+    // 開門邏輯
+    void OpenDoor()
     {
-        bool shouldOpen = playerInsideCount > 0;
+        isOpen = true;
 
-        // 1. 播放 Animator 動畫 (IsOpen 設為 true/false)
         if (anim != null)
         {
-            anim.SetBool("IsOpen", shouldOpen);
+            anim.SetBool("IsOpen", true);
         }
 
-        // 2. 💡 關鍵修復：門開啟時關閉阻擋碰撞體；門關閉時恢復阻擋！
         if (doorSolidCollider != null)
         {
-            doorSolidCollider.enabled = !shouldOpen;
+            doorSolidCollider.enabled = false; // 關閉阻擋碰撞體
         }
 
-        Debug.Log(shouldOpen ? "<color=green>【自動門】玩家靠近，門已開啟，阻擋碰撞已關閉！</color>" 
-                             : "<color=orange>【自動門】玩家離開，門已關閉，阻擋碰撞已恢復！</color>");
+        // 成功開門後隱藏 UI 提示
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.HideTip();
+        }
+
+        Debug.Log("<color=green>【機關門】玩家按下 F 鍵，門已開啟，阻擋碰撞已關閉！</color>");
+    }
+
+    // 關門邏輯
+    void CloseDoor()
+    {
+        isOpen = false;
+
+        if (anim != null)
+        {
+            anim.SetBool("IsOpen", false);
+        }
+
+        if (doorSolidCollider != null)
+        {
+            doorSolidCollider.enabled = true; // 恢復阻擋碰撞體
+        }
+
+        Debug.Log("<color=orange>【機關門】玩家離開感應區，門已自動關閉，阻擋碰撞已恢復！</color>");
     }
 }

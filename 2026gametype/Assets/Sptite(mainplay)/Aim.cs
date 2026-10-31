@@ -30,11 +30,9 @@ public class Aim : MonoBehaviour
 
         if (lineRenderer != null)
         {
-            // 💡 關鍵修復 1：強制將導引線的渲染層級拉到最高 (防止被地圖/Tilemap 蓋住)
             lineRenderer.sortingLayerName = sortingLayerName;
             lineRenderer.sortingOrder = sortingOrder;
 
-            // 💡 關鍵修復 2：若沒指定 Material，自動賦予預設 2D Sprites 材質球
             if (lineRenderer.material == null || lineRenderer.material.name.Contains("Default-Material"))
             {
                 lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
@@ -60,7 +58,7 @@ public class Aim : MonoBehaviour
             return;
         }
 
-        // 1. 按下滑鼠右鍵 (MouseButton 1) 開始瞄準
+        // 1. 按下滑鼠右鍵開始瞄準
         if (Input.GetMouseButtonDown(1))
         {
             isAiming = true;
@@ -87,10 +85,8 @@ public class Aim : MonoBehaviour
 
     void UpdateTrajectory()
     {
-        // 確保 throwPoint 有拉入，否則以玩家本體座標取代
         Vector2 origin = throwPoint != null ? (Vector2)throwPoint.position : (Vector2)transform.position;
 
-        // 取得滑鼠在世界座標的位置 (加入相機 Z 軸補償)
         Camera mainCam = Camera.main;
         if (mainCam == null) return;
 
@@ -98,36 +94,31 @@ public class Aim : MonoBehaviour
         mouseScreenPos.z = Mathf.Abs(mainCam.transform.position.z - transform.position.z);
         Vector2 mouseWorldPos = mainCam.ScreenToWorldPoint(mouseScreenPos);
 
-        // 預設瞄準位置（限制在 maxThrowDistance 範圍內）
         Vector2 defaultTarget = origin + Vector2.ClampMagnitude(mouseWorldPos - origin, maxThrowDistance);
 
-        // 磁吸檢測：在預設目標點附近搜尋可鎖定的障礙物/危牆
         Collider2D hit = Physics2D.OverlapCircle(defaultTarget, magnetRadius, targetLayer);
 
         if (hit != null)
         {
-            // 磁吸成功！將目標位置強行吸附至危牆/機關中心
             currentTargetPos = hit.transform.position;
             lockedTarget = hit.transform;
             if (lineRenderer != null)
             {
-                lineRenderer.startColor = Color.cyan; // 鎖定時顯示亮青色
+                lineRenderer.startColor = Color.cyan;
                 lineRenderer.endColor = Color.cyan;
             }
         }
         else
         {
-            // 未磁吸：使用普通彈道
             currentTargetPos = defaultTarget;
             lockedTarget = null;
             if (lineRenderer != null)
             {
-                lineRenderer.startColor = Color.green; // 未鎖定顯示螢光綠
+                lineRenderer.startColor = Color.green;
                 lineRenderer.endColor = Color.green;
             }
         }
 
-        // 繪製螢光導引線
         if (lineRenderer != null && lineRenderer.enabled)
         {
             lineRenderer.SetPosition(0, origin);
@@ -137,22 +128,29 @@ public class Aim : MonoBehaviour
 
     void ThrowPackage()
     {
-        // 拋出包裹後，將手頭狀態設為 false (無法連續拋投)
         hasPackage = false;
 
         Vector2 spawnPos = throwPoint != null ? (Vector2)throwPoint.position : (Vector2)transform.position;
 
-        // 生成業障包裹並傳入目標點
+        // 生成業障包裹
         GameObject pkg = Instantiate(karmaPackagePrefab, spawnPos, Quaternion.identity);
+
+        // 💡【關鍵新增】計算拋投方向向量並設定包裹的 8 方向 Sprite
+        Vector2 throwDirection = (currentTargetPos - spawnPos).normalized;
+        KarmaPackageDirection packageDir = pkg.GetComponent<KarmaPackageDirection>();
+        if (packageDir != null)
+        {
+            packageDir.SetDirection(throwDirection);
+        }
+
+        // 初始化包裹目標點
         KarmaPackage packageScript = pkg.GetComponent<KarmaPackage>();
-        
         if (packageScript != null)
         {
             packageScript.InitTarget(currentTargetPos, lockedTarget);
         }
     }
 
-    // 由 KarmaPackage 在玩家撿起包裹時呼叫
     public void OnPackagePickedUp()
     {
         hasPackage = true;

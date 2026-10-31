@@ -240,7 +240,8 @@ public class GhostAI : MonoBehaviour
 
     void BreakObstacle(Transform obstacle)
     {
-        Destroy(obstacle.gameObject);
+        if (!DestructibleHouse.TryBreakObstacle(obstacle))
+            Destroy(obstacle.gameObject);
         lockedObstacle = null;
     }
 

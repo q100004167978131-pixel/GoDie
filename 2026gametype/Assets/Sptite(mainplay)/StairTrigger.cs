@@ -12,6 +12,9 @@ public class StairTrigger : MonoBehaviour
 
     [Header("提示文字內容")]
     public string interactPrompt = "按 【F】 鍵啟動靈魂通路";
+    [TextArea]
+    public string activatedPrompt = "似乎開啟了一條道路..."; // 💡 新增：啟動機關後的提示文字
+    public float activatedPromptDuration = 3f;                   // 提示顯示持續秒數
 
     private bool isStairActivated = false;
     private Transform playerTransform;
@@ -76,12 +79,7 @@ public class StairTrigger : MonoBehaviour
     void ActivateStair()
     {
         isStairActivated = true;
-
-        // 隱藏按 F 鍵提示
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.HideTip();
-        }
+        wasShowingTip = false;
 
         if (stairObject != null)
         {
@@ -92,6 +90,25 @@ public class StairTrigger : MonoBehaviour
             if (sr != null) sr.sortingOrder = 5;
 
             Debug.Log("<color=yellow>【機關啟動】幽靈按下 F 鍵，樓梯成功顯現！</color>");
+        }
+
+        // 💡 啟動成功後，播放「似乎開啟了一條道路...」的提示訊息
+        StartCoroutine(ShowActivatedTipRoutine());
+    }
+
+    // 💡 倒數顯示啟動提示 (使用 Realtime 以確保在 Time.timeScale = 0 也能正常倒數隱藏)
+    IEnumerator ShowActivatedTipRoutine()
+    {
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowTip(activatedPrompt);
+        }
+
+        yield return new WaitForSecondsRealtime(activatedPromptDuration);
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.HideTip();
         }
     }
 
